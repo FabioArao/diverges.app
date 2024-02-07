@@ -2,32 +2,49 @@ import { useState, useEffect } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { ArrowRightCircle } from "react-bootstrap-icons";
 
-import headerImage from "../assets/img/Header-Image.svg";
-
-const WORDS = ["Neuro divergente", "TDAH", "DDA", "Ansiedade"];
+import headerImage from "../assets/img/Exploratory.png";
 
 export function Banner() {
-  const [text, setText] = useState("");
+  const [loopNum, setLoopNum] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [delta, setDelta] = useState(300);
+  const [text, setText] = useState("");
+  const [delta, setDelta] = useState(300 - Math.random() * 100);
+  const [index, setIndex] = useState(1);
+  const toRotate =["TDAH", "Ansiedade", "DDA"];
+  const period = 2000;
 
   useEffect(() => {
-    const ticker = setInterval(() => {
-      const word = WORDS[Math.floor(Math.random() * WORDS.length)];
-      
-      setText(isDeleting ? word.substring(0, text.length - 1) : word.substring(0, text.length + 1));
-
-      if (!isDeleting && text === word) {
-        setIsDeleting(true);
-        setDelta(500);
-      } else if (isDeleting && text === "") {
-        setIsDeleting(false);
-        setDelta(500);
-      }
+    let ticker = setInterval(() => {
+      tick();
     }, delta);
 
     return () => clearInterval(ticker);
-  }, [isDeleting, delta, text]);
+  } ,[text]);
+
+  const tick = () => {
+    let i = loopNum % toRotate.length;
+    let fullText = toRotate[i];
+    let updatedText = isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1);
+
+    setText(updatedText);
+    
+    if(isDeleting) {
+      setDelta(prevDelta => prevDelta / 2);
+    }
+
+    if(!isDeleting && updatedText === fullText) {
+      setIsDeleting(true);
+      setIndex(prevIndex => prevIndex - 1);
+      setDelta(period);
+    } else if(isDeleting && updatedText === "") {
+      setIsDeleting(false);
+      setLoopNum(loopNum + 1);
+      setIndex(1);
+      setDelta(500);
+    } else {
+      setIndex(prevIndex => prevIndex + 1);
+    }
+  }
 
   return (
     <section className="banner" id="home">
@@ -36,7 +53,7 @@ export function Banner() {
           <Col xs={12} md={6} xl={7}>
             <span className="tagline">Bem vindo ao DivergesApp</span>
             <h1>
-              App para Neuro Divergentes 
+              App para Neurodivergentes <br />
               <span className="wrap"> {text} </span>
             </h1>
 
